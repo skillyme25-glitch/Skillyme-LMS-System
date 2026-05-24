@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker --version)",
+      "Bash(docker compose *)",
+      "PowerShell($env:NODE_TLS_REJECT_UNAUTHORIZED=\"0\"; cd \"C:\\\\Users\\\\Administrator\\\\Documents\\\\SKILLYME AFRICA LMS\"; npm run dev 2>&1)"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "skillyme-africa-lms",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "concurrently \"npm run build:server\" \"npm run build:client\"",
+    "build:server": "cd server && npm run build",
+    "build:client": "cd client && npm run build",
+    "db:migrate": "npx prisma migrate dev --schema=./prisma/schema.prisma",
+    "db:seed": "npx ts-node --project tsconfig.base.json prisma/seed.ts",
+    "db:generate": "npx prisma generate --schema=./prisma/schema.prisma",
+    "db:studio": "npx prisma studio --schema=./prisma/schema.prisma",
+    "db:reset-live": "npx ts-node prisma/reset-live.ts",
+    "setup": "npm install && cd server && npm install && cd ../client && npm install"
+  },
+  "prisma": {
+    "seed": "ts-node --project tsconfig.base.json prisma/seed.ts"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "prisma": "^5.10.2",
+    "@prisma/client": "^5.10.2",
+    "bcryptjs": "^2.4.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

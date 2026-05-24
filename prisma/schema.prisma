@@ -1,0 +1,326 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  FACILITATOR
+  MENTOR
+  MEMBER
+}
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+}
+
+enum StageGroup {
+  IDEA_STAGE
+  EARLY_BUILDER
+  EARLY_TRACTION
+}
+
+enum FunctionalRole {
+  BUILDER
+  COMMERCIAL
+  GROWTH
+  PRODUCT
+  DOMAIN_EXPERT
+  DESIGN
+  LEGAL
+}
+
+enum MilestoneStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  FLAGGED
+}
+
+enum EventType {
+  SESSION
+  MILESTONE_DEADLINE
+  TEAM_EVENT
+  PROGRAM_EVENT
+}
+
+enum TargetAudience {
+  ALL
+  SPECIFIC_TEAM
+}
+
+enum ApplicationStatus {
+  PENDING
+  SHORTLISTED
+  ACCEPTED
+  REJECTED
+  WAITLISTED
+}
+
+enum ApplyingAs {
+  INDIVIDUAL
+  PRE_FORMED_TEAM
+  HARDSHIP
+}
+
+enum PricingTier {
+  INDIVIDUAL
+  GROUP
+  HARDSHIP
+}
+
+enum NotificationType {
+  ANNOUNCEMENT
+  MILESTONE_REMINDER
+  MILESTONE_APPROVED
+  MILESTONE_FLAGGED
+  SESSION_REMINDER
+  TEAM_UPDATE
+  SYSTEM
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id                   String    @id @default(uuid())
+  email                String    @unique
+  passwordHash         String?
+  firstName            String
+  lastName             String
+  role                 Role      @default(MEMBER)
+  status               UserStatus @default(INVITED)
+  photoUrl             String?
+  linkedinUrl          String?
+  phone                String?
+  invitationToken      String?   @unique
+  invitationExpiresAt  DateTime?
+  refreshToken         String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // Relations
+  teamMemberships      TeamMember[]
+  mentorAssignments    MentorTeam[]
+  notifications        Notification[]
+  teamPosts            TeamPost[]
+  auditLogs            AuditLog[]
+  announcementsPosted      Announcement[]
+  calendarEventsCreated    CalendarEvent[]
+  milestonesReviewed       TeamMilestone[]  @relation("ReviewedBy")
+  applicationsReviewed     Application[]    @relation("ApplicationReviewer")
+
+  @@map("users")
+}
+
+model Team {
+  id                 String     @id @default(uuid())
+  name               String
+  productName        String?
+  productDescription String?
+  sector             String?
+  stageGroup         StageGroup @default(IDEA_STAGE)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  // Relations
+  members            TeamMember[]
+  mentors            MentorTeam[]
+  milestones         TeamMilestone[]
+  calendarEvents     CalendarEvent[]
+  posts              TeamPost[]
+  announcements      Announcement[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id             String         @id @default(uuid())
+  userId         String
+  teamId         String
+  functionalRole FunctionalRole @default(BUILDER)
+  isTeamLead     Boolean        @default(false)
+  joinedAt       DateTime       @default(now())
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team           Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+  @@map("team_members")
+}
+
+model MentorTeam {
+  id         String   @id @default(uuid())
+  mentorId   String
+  teamId     String
+  assignedAt DateTime @default(now())
+
+  mentor     User     @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+  team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([mentorId, teamId])
+  @@map("mentor_teams")
+}
+
+model Milestone {
+  id          String     @id @default(uuid())
+  weekNumber  Int
+  stageGroup  StageGroup @default(IDEA_STAGE)
+  title       String
+  description String
+  dueDate     DateTime
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  teamMilestones TeamMilestone[]
+
+  @@unique([weekNumber, stageGroup])
+  @@map("milestones")
+}
+
+model TeamMilestone {
+  id               String          @id @default(uuid())
+  teamId           String
+  milestoneId      String
+  status           MilestoneStatus @default(NOT_STARTED)
+  submissionNote   String?
+  answers          Json?
+  facilitatorNote  String?
+  submittedAt      DateTime?
+  reviewedAt       DateTime?
+  reviewedById     String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  team             Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  milestone        Milestone       @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  reviewedBy       User?           @relation("ReviewedBy", fields: [reviewedById], references: [id])
+
+  @@unique([teamId, milestoneId])
+  @@map("team_milestones")
+}
+
+model CalendarEvent {
+  id                 String    @id @default(uuid())
+  title              String
+  description        String?
+  startTime          DateTime
+  endTime            DateTime
+  eventType          EventType
+  isAllTeams         Boolean   @default(true)
+  teamId             String?
+  createdById        String
+  googleCalendarLink String?
+  icsUrl             String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  team               Team?     @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  createdBy          User      @relation(fields: [createdById], references: [id])
+
+  @@map("calendar_events")
+}
+
+model Announcement {
+  id             String         @id @default(uuid())
+  title          String
+  body           String
+  postedById     String
+  targetAudience TargetAudience @default(ALL)
+  teamId         String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  postedBy       User           @relation(fields: [postedById], references: [id])
+  team           Team?          @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  @@map("announcements")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  isRead    Boolean          @default(false)
+  linkUrl   String?
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model TeamPost {
+  id            String   @id @default(uuid())
+  teamId        String
+  authorId      String
+  content       String
+  attachmentUrl String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  team          Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  author        User     @relation(fields: [authorId], references: [id])
+
+  @@map("team_posts")
+}
+
+model Application {
+  id                String            @id @default(uuid())
+  firstName         String
+  lastName          String
+  email             String            @unique
+  phone             String?
+  location          String?
+  employmentStatus  String?
+  workLink          String?
+  stageGroup        StageGroup
+  applyingAs        ApplyingAs        @default(INDIVIDUAL)
+  primaryRole       FunctionalRole
+  ideaDescription   String?
+  customerInsight   String?
+  ideaOwnership     String?
+  canCommit         String?
+  sessionPreference Json?
+  hoursPerWeek      String?
+  commitment        String?
+  teammateInfo      Json?
+  hardshipReason    String?
+  referralSource    String?
+  additionalInfo    String?
+  confirmedTerms    Boolean           @default(false)
+  status            ApplicationStatus @default(PENDING)
+  adminScore        Int?
+  adminNotes        String?
+  reviewedAt        DateTime?
+  reviewedById      String?
+  reviewedBy        User?             @relation("ApplicationReviewer", fields: [reviewedById], references: [id])
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@map("applications")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String
+  action     String
+  targetType String
+  targetId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  actor      User     @relation(fields: [actorId], references: [id])
+
+  @@map("audit_logs")
+}
