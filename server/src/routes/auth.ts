@@ -117,6 +117,10 @@ router.post(
         id: updated.id, email: updated.email, firstName: updated.firstName,
         lastName: updated.lastName, role: updated.role, status: updated.status,
         photoUrl: updated.photoUrl,
+        teams: user.teamMemberships.map((m) => ({
+          teamId: m.teamId, teamName: m.team.name,
+          functionalRole: m.functionalRole, isTeamLead: m.isTeamLead,
+        })),
       },
     });
   }

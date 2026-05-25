@@ -63,20 +63,17 @@ export default function TeamPage() {
   const isMentor = user?.role === 'MENTOR';
   const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'FACILITATOR';
 
-  // Always fetch fresh user data so team assignments made after login are visible
-  const { data: meData } = useQuery({
+  // Share the same ['auth-me'] query key as Layout so no extra request is made.
+  // Layout updates the auth store when this resolves, so user.teams is always fresh.
+  const { isLoading: meLoading } = useQuery({
     queryKey: ['auth-me'],
     queryFn: () => authApi.me(),
     enabled: isMember || isMentor,
-    staleTime: 30_000,
+    staleTime: 2 * 60 * 1000,
   });
 
-  const freshTeams = meData?.data?.teamMemberships?.map((m) => ({
-    teamId: m.teamId,
-    teamName: m.team?.name ?? '',
-    functionalRole: m.functionalRole as string,
-    isTeamLead: m.isTeamLead,
-  })) ?? user?.teams;
+  // While the first auth-me fetch is in flight, don't decide there's no team yet
+  const resolvingTeam = (isMember || isMentor) && meLoading && !user?.teams?.length;
 
   const { data: teamsData } = useQuery({
     queryKey: ['admin-teams'],
@@ -88,8 +85,8 @@ export default function TeamPage() {
   const allTeams = teamsData?.data ?? [];
 
   const teamId: string = (() => {
-    if (isMember) return freshTeams?.[0]?.teamId ?? '';
-    if (isMentor) return selectedTeamId ?? (freshTeams?.[0]?.teamId ?? '');
+    if (isMember) return user?.teams?.[0]?.teamId ?? '';
+    if (isMentor) return selectedTeamId ?? (user?.teams?.[0]?.teamId ?? '');
     return selectedTeamId ?? (allTeams[0]?.id ?? '');
   })();
 
@@ -144,7 +141,13 @@ export default function TeamPage() {
         </>
       )}
 
-      {!team && (
+      {resolvingTeam && (
+        <div className="flex justify-center py-16">
+          <div className="animate-spin w-7 h-7 border-2 border-[#3730A3] border-t-transparent rounded-full" />
+        </div>
+      )}
+
+      {!resolvingTeam && !team && (
         <div className="text-center py-16 text-[#9CA3AF]">
           <p>No team selected or you are not assigned to a team yet.</p>
         </div>

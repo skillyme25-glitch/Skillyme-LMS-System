@@ -1,11 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
+import { authApi } from '@/api/endpoints';
+import { authStore } from '@/store/authStore';
 import Navbar from './Navbar';
 
 export default function Layout() {
   const { user, isLoading } = useAuth();
   const location = useLocation();
+
+  // Keep auth store teams fresh so Dashboard + Team page always reflect DB state
+  const { data: meData } = useQuery({
+    queryKey: ['auth-me'],
+    queryFn: () => authApi.me(),
+    enabled: !!user,
+    staleTime: 2 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  });
+
+  useEffect(() => {
+    if (!meData?.data) return;
+    const m = meData.data;
+    const teams = m.teamMemberships?.map((mb) => ({
+      teamId: mb.teamId,
+      teamName: mb.team?.name ?? '',
+      functionalRole: mb.functionalRole as string,
+      isTeamLead: mb.isTeamLead,
+    })) ?? [];
+    const stored = authStore.getUser();
+    if (stored) authStore.setUser({ ...stored, teams });
+  }, [meData]);
 
   if (isLoading) {
     return (
