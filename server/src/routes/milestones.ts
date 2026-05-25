@@ -82,6 +82,12 @@ router.patch(
   }
 );
 
+// DELETE /api/milestones/:id (SUPER_ADMIN only)
+router.delete('/:id', isAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+  await prisma.milestone.delete({ where: { id: req.params.id } });
+  res.json({ message: 'Milestone deleted' });
+});
+
 // GET /api/teams/:teamId/milestones
 router.get('/teams/:teamId', async (req: AuthRequest, res: Response): Promise<void> => {
   const { teamId } = req.params;

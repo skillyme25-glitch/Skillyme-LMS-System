@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { milestonesApi, adminTeamsApi } from '@/api/endpoints';
 import { Card, CardBody } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Select } from '@/components/ui/select';
 import { Modal } from '@/components/ui/modal';
 import { Badge } from '@/components/ui/badge';
 import { MilestoneStatusBadge } from '@/components/ui/badge';
-import { Edit, ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { Edit, Trash2, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { formatDate, stageGroupLabel } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import toast from 'react-hot-toast';
@@ -50,6 +50,12 @@ export default function MilestonesAdminPage() {
   const { data: msData } = useQuery({
     queryKey: ['milestones'],
     queryFn: () => milestonesApi.list(),
+  });
+
+  const deleteMs = useMutation({
+    mutationFn: (id: string) => milestonesApi.delete(id),
+    onSuccess: () => { toast.success('Milestone deleted'); qc.invalidateQueries({ queryKey: ['milestones'] }); qc.invalidateQueries({ queryKey: ['admin-teams'] }); },
+    onError: () => toast.error('Failed to delete milestone'),
   });
 
   const { data: teamsData } = useQuery({
@@ -98,9 +104,18 @@ export default function MilestonesAdminPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   {isAdmin && (
-                    <Button size="sm" variant="outline" onClick={() => setEditMs(ms)}>
-                      <Edit size={12} /> Edit
-                    </Button>
+                    <>
+                      <Button size="sm" variant="outline" onClick={() => setEditMs(ms)}>
+                        <Edit size={12} /> Edit
+                      </Button>
+                      <button
+                        onClick={() => { if (confirm(`Delete "${ms.title}"? Team milestone records will also be removed.`)) deleteMs.mutate(ms.id); }}
+                        className="p-1.5 text-[#9CA3AF] hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                        title="Delete milestone"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </>
                   )}
                   <button
                     onClick={() => setExpanded(isExpanded ? null : ms.id)}

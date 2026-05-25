@@ -69,7 +69,7 @@ export default function TeamPage() {
     queryKey: ['auth-me'],
     queryFn: () => authApi.me(),
     enabled: isMember || isMentor,
-    staleTime: 0, // always treat as stale so a page refresh gets the latest assignment
+    staleTime: 30_000,
   });
 
   const { data: teamsData } = useQuery({

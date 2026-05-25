@@ -302,4 +302,34 @@ router.delete('/:id/revoke-invite', isAdmin, async (req: AuthRequest, res: Respo
   res.json({ message: 'Invitation re-sent' });
 });
 
+// DELETE /api/admin/users/:id
+router.delete('/:id', isAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  if (id === req.user!.userId) {
+    res.status(400).json({ error: { message: 'Cannot delete your own account', code: 'BAD_REQUEST' } });
+    return;
+  }
+
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) {
+    res.status(404).json({ error: { message: 'User not found', code: 'NOT_FOUND' } });
+    return;
+  }
+
+  await prisma.$transaction([
+    // Null out reviewer/actor references (nullable FK fields with no onDelete)
+    prisma.teamMilestone.updateMany({ where: { reviewedById: id }, data: { reviewedById: null } }),
+    prisma.application.updateMany({ where: { reviewedById: id }, data: { reviewedById: null } }),
+    // Delete owned records
+    prisma.auditLog.deleteMany({ where: { actorId: id } }),
+    prisma.teamPost.deleteMany({ where: { authorId: id } }),
+    prisma.announcement.deleteMany({ where: { postedById: id } }),
+    prisma.calendarEvent.deleteMany({ where: { createdById: id } }),
+    prisma.user.delete({ where: { id } }),
+  ]);
+
+  res.json({ message: 'User deleted' });
+});
+
 export default router;

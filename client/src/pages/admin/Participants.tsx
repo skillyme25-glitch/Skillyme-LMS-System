@@ -7,7 +7,7 @@ import { Input, Textarea } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Modal } from '@/components/ui/modal';
-import { UserPlus, Users, Mail, Edit, Ban, RefreshCw, Search, UserCheck } from 'lucide-react';
+import { UserPlus, Users, Mail, Edit, Ban, RefreshCw, Search, UserCheck, Trash2 } from 'lucide-react';
 import { formatDate, roleLabel, functionalRoleLabel, initials } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import type { User, Team } from '@/types';
@@ -67,6 +67,16 @@ export default function ParticipantsPage() {
   const suspendUser = useMutation({
     mutationFn: (id: string) => adminUsersApi.suspend(id),
     onSuccess: () => { toast.success('User suspended'); qc.invalidateQueries({ queryKey: ['admin-users'] }); },
+  });
+
+  const deleteUser = useMutation({
+    mutationFn: (id: string) => adminUsersApi.delete(id),
+    onSuccess: () => {
+      toast.success('User deleted');
+      qc.invalidateQueries({ queryKey: ['admin-users'] });
+      qc.invalidateQueries({ queryKey: ['admin-teams'] });
+    },
+    onError: () => toast.error('Failed to delete user'),
   });
 
   const revokeInvite = useMutation({
@@ -225,10 +235,17 @@ export default function ParticipantsPage() {
                           </button>
                         )}
                         {u.status === 'ACTIVE' && (
-                          <button onClick={() => { if (confirm('Suspend this user?')) suspendUser.mutate(u.id); }} className="p-1 hover:bg-[#F3F4F6] rounded text-[#9CA3AF] hover:text-red-600">
+                          <button onClick={() => { if (confirm('Suspend this user?')) suspendUser.mutate(u.id); }} className="p-1 hover:bg-[#F3F4F6] rounded text-[#9CA3AF] hover:text-orange-500" title="Suspend">
                             <Ban size={14} />
                           </button>
                         )}
+                        <button
+                          onClick={() => { if (confirm(`Permanently delete ${u.firstName} ${u.lastName}? This cannot be undone.`)) deleteUser.mutate(u.id); }}
+                          className="p-1 hover:bg-red-50 rounded text-[#9CA3AF] hover:text-red-600"
+                          title="Delete"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
                     </td>
                   </tr>

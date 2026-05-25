@@ -106,6 +106,21 @@ router.patch(
   }
 );
 
+// DELETE /api/admin/teams/:id
+router.delete('/:id', isAdmin, async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const team = await prisma.team.findUnique({ where: { id } });
+  if (!team) {
+    res.status(404).json({ error: { message: 'Team not found', code: 'NOT_FOUND' } });
+    return;
+  }
+  await prisma.team.delete({ where: { id } });
+  await prisma.auditLog.create({
+    data: { actorId: req.user!.userId, action: 'DELETED_TEAM', targetType: 'Team', targetId: id, metadata: { name: team.name } },
+  });
+  res.json({ message: 'Team deleted' });
+});
+
 // POST /api/admin/teams/:id/members
 router.post(
   '/:id/members',

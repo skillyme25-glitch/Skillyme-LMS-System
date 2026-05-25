@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminTeamsApi } from '@/api/endpoints';
+import { useMutation } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Modal } from '@/components/ui/modal';
-import { Plus, Edit, Users, Package, ChevronRight, Layers } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, Package, ChevronRight, Layers } from 'lucide-react';
 import { stageGroupLabel } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -57,6 +59,12 @@ export default function TeamsAdminPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['admin-teams'],
     queryFn: () => adminTeamsApi.list(),
+  });
+
+  const deleteTeam = useMutation({
+    mutationFn: (id: string) => adminTeamsApi.delete(id),
+    onSuccess: () => { toast.success('Team deleted'); qc.invalidateQueries({ queryKey: ['admin-teams'] }); },
+    onError: () => toast.error('Failed to delete team'),
   });
 
   const allTeams = data?.data ?? [];
@@ -142,7 +150,8 @@ export default function TeamsAdminPage() {
               No teams in this stage yet.
             </div>
           ) : visibleTeams.map((team) => (
-            <TeamCard key={team.id} team={team} onEdit={() => setEditTeam(team)} onView={() => navigate('/team')} />
+            <TeamCard key={team.id} team={team} onEdit={() => setEditTeam(team)} onView={() => navigate('/team')}
+              onDelete={() => { if (confirm(`Delete "${team.name}"? This removes all members and milestone data.`)) deleteTeam.mutate(team.id); }} />
           ))}
         </div>
       )}
@@ -166,7 +175,8 @@ export default function TeamsAdminPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {teams.map((team) => (
-                    <TeamCard key={team.id} team={team} onEdit={() => setEditTeam(team)} onView={() => navigate('/team')} />
+                    <TeamCard key={team.id} team={team} onEdit={() => setEditTeam(team)} onView={() => navigate('/team')}
+                      onDelete={() => { if (confirm(`Delete "${team.name}"? This removes all members and milestone data.`)) deleteTeam.mutate(team.id); }} />
                   ))}
                 </div>
               </div>
@@ -195,7 +205,7 @@ export default function TeamsAdminPage() {
 }
 
 /* ── Team card ─────────────────────────────────────────────────────────────── */
-function TeamCard({ team, onEdit, onView }: { team: Team; onEdit: () => void; onView: () => void }) {
+function TeamCard({ team, onEdit, onView, onDelete }: { team: Team; onEdit: () => void; onView: () => void; onDelete: () => void }) {
   return (
     <div
       className="bg-white rounded-xl border border-[#3730A3]/08 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
@@ -212,12 +222,16 @@ function TeamCard({ team, onEdit, onView }: { team: Team; onEdit: () => void; on
               </p>
             )}
           </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); onEdit(); }}
-            className="ml-2 p-1.5 text-[#9CA3AF] hover:text-[#3730A3] hover:bg-[#EEF2FF] rounded-md transition-colors opacity-0 group-hover:opacity-100"
-          >
-            <Edit size={14} />
-          </button>
+          <div className="flex items-center gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              className="p-1.5 text-[#9CA3AF] hover:text-[#3730A3] hover:bg-[#EEF2FF] rounded-md transition-colors">
+              <Edit size={14} />
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              className="p-1.5 text-[#9CA3AF] hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
+              <Trash2 size={14} />
+            </button>
+          </div>
         </div>
 
         {/* Tags */}

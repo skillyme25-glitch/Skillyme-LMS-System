@@ -29,6 +29,7 @@ export const adminUsersApi = {
   update: (id: string, body: Record<string, unknown>) => api.patch(`/admin/users/${id}`, body),
   suspend: (id: string) => api.patch(`/admin/users/${id}/suspend`),
   revokeInvite: (id: string) => api.delete(`/admin/users/${id}/revoke-invite`),
+  delete: (id: string) => api.delete(`/admin/users/${id}`),
 };
 
 // ─── Admin Teams ──────────────────────────────────────────────────────────────
@@ -37,6 +38,7 @@ export const adminTeamsApi = {
   get: (id: string) => api.get<Team>(`/admin/teams/${id}`),
   create: (body: Record<string, unknown>) => api.post<Team>('/admin/teams', body),
   update: (id: string, body: Record<string, unknown>) => api.patch<Team>(`/admin/teams/${id}`, body),
+  delete: (id: string) => api.delete(`/admin/teams/${id}`),
   addMember: (teamId: string, body: Record<string, unknown>) => api.post(`/admin/teams/${teamId}/members`, body),
   removeMember: (teamId: string, userId: string) => api.delete(`/admin/teams/${teamId}/members/${userId}`),
   addMentor: (teamId: string, body: { mentorId: string }) => api.post(`/admin/teams/${teamId}/mentors`, body),
@@ -53,6 +55,7 @@ export const milestonesApi = {
   list: () => api.get<Milestone[]>('/milestones'),
   create: (body: Record<string, unknown>) => api.post<Milestone>('/milestones', body),
   update: (id: string, body: Record<string, unknown>) => api.patch<Milestone>(`/milestones/${id}`, body),
+  delete: (id: string) => api.delete(`/milestones/${id}`),
   teamMilestones: (teamId: string) => api.get<TeamMilestone[]>(`/teams/${teamId}/milestones`),
   submit: (teamId: string, milestoneId: string, body: { submissionNote?: string; answers?: Record<string, string> }) =>
     api.patch(`/teams/${teamId}/milestones/${milestoneId}/submit`, body),

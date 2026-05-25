@@ -1,23 +1,32 @@
-﻿import React from 'react';
+﻿import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 
 import Layout from '@/components/layout/Layout';
-import Login from '@/pages/Login';
-import AcceptInvite from '@/pages/AcceptInvite';
-import Dashboard from '@/pages/Dashboard';
-import TeamPage from '@/pages/Team';
-import CalendarPage from '@/pages/Calendar';
-import NotificationsPage from '@/pages/Notifications';
-import ProfilePage from '@/pages/Profile';
-import AdminLayout from '@/pages/admin/AdminLayout';
-import ParticipantsPage from '@/pages/admin/Participants';
-import TeamsAdminPage from '@/pages/admin/Teams';
-import MilestonesAdminPage from '@/pages/admin/Milestones';
-import AnnouncementsAdminPage from '@/pages/admin/Announcements';
-import ApplicationsPage from '@/pages/admin/Applications';
-import ApplyPage from '@/pages/Apply';
+
+const Login            = lazy(() => import('@/pages/Login'));
+const AcceptInvite     = lazy(() => import('@/pages/AcceptInvite'));
+const ApplyPage        = lazy(() => import('@/pages/Apply'));
+const Dashboard        = lazy(() => import('@/pages/Dashboard'));
+const TeamPage         = lazy(() => import('@/pages/Team'));
+const CalendarPage     = lazy(() => import('@/pages/Calendar'));
+const NotificationsPage= lazy(() => import('@/pages/Notifications'));
+const ProfilePage      = lazy(() => import('@/pages/Profile'));
+const AdminLayout      = lazy(() => import('@/pages/admin/AdminLayout'));
+const ParticipantsPage = lazy(() => import('@/pages/admin/Participants'));
+const TeamsAdminPage   = lazy(() => import('@/pages/admin/Teams'));
+const MilestonesAdminPage    = lazy(() => import('@/pages/admin/Milestones'));
+const AnnouncementsAdminPage = lazy(() => import('@/pages/admin/Announcements'));
+const ApplicationsPage = lazy(() => import('@/pages/admin/Applications'));
+
+function PageSpinner() {
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="w-7 h-7 border-2 border-[#3730A3] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,35 +41,37 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Routes>
-          {/* Public */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/accept-invite" element={<AcceptInvite />} />
-          <Route path="/apply" element={<ApplyPage />} />
+        <Suspense fallback={<PageSpinner />}>
+          <Routes>
+            {/* Public */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/accept-invite" element={<AcceptInvite />} />
+            <Route path="/apply" element={<ApplyPage />} />
 
-          {/* Protected (requires auth) */}
-          <Route element={<Layout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/team" element={<TeamPage />} />
-            <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            {/* Protected (requires auth) */}
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/team" element={<TeamPage />} />
+              <Route path="/calendar" element={<CalendarPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
 
-            {/* Admin sub-routes */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Navigate to="/admin/participants" replace />} />
-              <Route path="participants" element={<ParticipantsPage />} />
-              <Route path="teams" element={<TeamsAdminPage />} />
-              <Route path="milestones" element={<MilestonesAdminPage />} />
-              <Route path="announcements" element={<AnnouncementsAdminPage />} />
-              <Route path="applications" element={<ApplicationsPage />} />
+              {/* Admin sub-routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Navigate to="/admin/participants" replace />} />
+                <Route path="participants" element={<ParticipantsPage />} />
+                <Route path="teams" element={<TeamsAdminPage />} />
+                <Route path="milestones" element={<MilestonesAdminPage />} />
+                <Route path="announcements" element={<AnnouncementsAdminPage />} />
+                <Route path="applications" element={<ApplicationsPage />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+            {/* Default redirect */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
 
       <Toaster
