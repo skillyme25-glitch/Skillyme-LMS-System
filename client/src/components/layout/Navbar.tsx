@@ -34,7 +34,7 @@ function Logo({ size = 32 }: { size?: number }) {
     return (
       <img src="/logo.png" alt="Skillyme"
         style={{ width: size, height: size }}
-        className="object-contain rounded-md"
+        className="object-contain"
         onError={() => setErr(true)} />
     );
   }
