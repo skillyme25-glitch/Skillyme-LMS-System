@@ -33,6 +33,42 @@ async function checkTeamAccess(userId: string, role: string, teamId: string): Pr
   return false;
 }
 
+// GET /api/teams/:id
+router.get('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id: teamId } = req.params;
+  const user = req.user!;
+
+  const hasAccess = await checkTeamAccess(user.userId, user.role, teamId);
+  if (!hasAccess) {
+    res.status(403).json({ error: { message: 'Access denied', code: 'FORBIDDEN' } });
+    return;
+  }
+
+  const team = await prisma.team.findUnique({
+    where: { id: teamId },
+    include: {
+      members: {
+        include: {
+          user: { select: { id: true, firstName: true, lastName: true, email: true, photoUrl: true, role: true, linkedinUrl: true } },
+        },
+      },
+      mentors: {
+        include: {
+          mentor: { select: { id: true, firstName: true, lastName: true, email: true, photoUrl: true, linkedinUrl: true } },
+        },
+      },
+      milestones: { include: { milestone: true } },
+    },
+  });
+
+  if (!team) {
+    res.status(404).json({ error: { message: 'Team not found', code: 'NOT_FOUND' } });
+    return;
+  }
+
+  res.json(team);
+});
+
 // GET /api/teams/:id/posts
 router.get('/:id/posts', async (req: AuthRequest, res: Response): Promise<void> => {
   const teamId = req.params.id;

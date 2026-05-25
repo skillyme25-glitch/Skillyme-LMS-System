@@ -1,6 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminTeamsApi, milestonesApi, postsApi, authApi } from '@/api/endpoints';
+import { adminTeamsApi, teamsApi, milestonesApi, postsApi, authApi } from '@/api/endpoints';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardHeader, CardBody } from '@/components/ui/card';
 import { Badge, MilestoneStatusBadge } from '@/components/ui/badge';
@@ -97,7 +97,7 @@ export default function TeamPage() {
 
   const { data: teamData } = useQuery({
     queryKey: ['team', teamId],
-    queryFn: () => adminTeamsApi.get(teamId),
+    queryFn: () => isAdmin ? adminTeamsApi.get(teamId) : teamsApi.get(teamId),
     enabled: !!teamId,
   });
 

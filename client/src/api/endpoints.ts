@@ -77,6 +77,11 @@ export const announcementsApi = {
   delete: (id: string) => api.delete(`/announcements/${id}`),
 };
 
+// ─── Teams (member-accessible) ───────────────────────────────────────────────
+export const teamsApi = {
+  get: (id: string) => api.get<Team>(`/teams/${id}`),
+};
+
 // ─── Team Posts ───────────────────────────────────────────────────────────────
 export const postsApi = {
   list: (teamId: string, page = 1) =>
