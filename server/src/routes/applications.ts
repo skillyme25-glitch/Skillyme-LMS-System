@@ -233,6 +233,7 @@ router.post(
         : [];
 
     const teammateResults: Array<{ email: string; success: boolean; tempPassword?: string; error?: string }> = [];
+    const createdTeammateIds: string[] = [];
 
     for (const tm of teammates) {
       if (!tm.email || !tm.firstName) continue;
@@ -244,7 +245,7 @@ router.post(
         }
         const tmPass = generateTempPassword();
         const tmHash = await bcrypt.hash(tmPass, 12);
-        await prisma.user.create({
+        const tmUser = await prisma.user.create({
           data: {
             email: tm.email,
             firstName: tm.firstName,
@@ -254,6 +255,7 @@ router.post(
             passwordHash: tmHash,
           },
         });
+        createdTeammateIds.push(tmUser.id);
         // Send acceptance email to teammate
         emailService.sendAcceptanceWithCredentials({
           to: tm.email, firstName: tm.firstName, tempPassword: tmPass,
@@ -261,6 +263,36 @@ router.post(
         teammateResults.push({ email: tm.email, success: true, tempPassword: tmPass });
       } catch (err) {
         teammateResults.push({ email: tm.email, success: false, error: String(err) });
+      }
+    }
+
+    // ─── Auto-create a team for pre-formed group applications ─────────────────
+    let autoTeamId: string | undefined;
+    if (app.applyingAs === 'PRE_FORMED_TEAM') {
+      const team = await prisma.team.create({
+        data: {
+          name: `${app.firstName} ${app.lastName}'s Team`,
+          stageGroup: app.stageGroup as Parameters<typeof prisma.team.create>[0]['data']['stageGroup'],
+          productDescription: app.ideaDescription || undefined,
+        },
+      });
+      autoTeamId = team.id;
+
+      // Primary applicant → team lead with their declared functional role
+      await prisma.teamMember.create({
+        data: {
+          userId: user.id,
+          teamId: team.id,
+          functionalRole: app.primaryRole as Parameters<typeof prisma.teamMember.create>[0]['data']['functionalRole'],
+          isTeamLead: true,
+        },
+      });
+
+      // Teammates → default BUILDER role (admin can reassign from Participants page)
+      for (const tmId of createdTeammateIds) {
+        await prisma.teamMember.create({
+          data: { userId: tmId, teamId: team.id, functionalRole: 'BUILDER' },
+        });
       }
     }
 
@@ -284,6 +316,7 @@ router.post(
       userId: user.id,
       tempPassword,
       teammateResults: teammateResults.length > 0 ? teammateResults : undefined,
+      autoTeamId,
     });
   }
 );

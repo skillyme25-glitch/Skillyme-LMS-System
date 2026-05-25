@@ -212,11 +212,12 @@ export default function ApplicationsPage() {
 }
 
 /* ── Accept result types ──────────────────────────────── */
-interface TeammateResult { email: string; success: boolean; error?: string }
+interface TeammateResult { email: string; success: boolean; tempPassword?: string; error?: string }
 interface AcceptResult {
   userId: string;
   tempPassword: string;
   teammateResults?: TeammateResult[];
+  autoTeamId?: string;
 }
 
 /* ── Detail modal ─────────────────────────────────────── */
@@ -297,21 +298,38 @@ function ApplicationDetailModal({
             </p>
           </div>
 
+          {acceptResult.autoTeamId && (
+            <div className="bg-[#E8FAF6] border border-[#1DB89A]/30 px-4 py-3 text-sm text-[#0F9A7E] font-medium">
+              Team created automatically — all members placed in one team. You can rename it and adjust roles from the Teams page.
+            </div>
+          )}
+
           {acceptResult.teammateResults && acceptResult.teammateResults.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-2">Teammate accounts</p>
+              <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wide mb-2">Teammate accounts</p>
               <div className="space-y-2">
                 {acceptResult.teammateResults.map((t) => (
                   <div key={t.email}
-                    className={`flex items-center justify-between px-3 py-2 border text-sm ${
-                      t.success
-                        ? 'border-[#3730A3]/30 bg-[#EEF2FF]'
-                        : 'border-[#DC2626]/30 bg-[#FEF2F2]'
+                    className={`px-3 py-2 border text-sm ${
+                      t.success ? 'border-[#1DB89A]/30 bg-[#E8FAF6]' : 'border-[#F04E37]/30 bg-[#FFECE9]'
                     }`}>
-                    <span className={t.success ? 'text-[#111827]' : 'text-[#B91C1C]'}>{t.email}</span>
-                    <span className={`text-xs font-semibold ${t.success ? 'text-[#2E27A3]' : 'text-[#B91C1C]'}`}>
-                      {t.success ? 'Account created' : t.error ?? 'Failed'}
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className={t.success ? 'text-[#1A1A2E] font-medium' : 'text-[#F04E37]'}>{t.email}</span>
+                      <span className={`text-xs font-semibold ${t.success ? 'text-[#0F9A7E]' : 'text-[#F04E37]'}`}>
+                        {t.success ? 'Account created' : t.error ?? 'Failed'}
+                      </span>
+                    </div>
+                    {t.success && t.tempPassword && (
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <code className="flex-1 bg-white border border-[#1DB89A]/20 px-2 py-1 text-xs font-mono text-[#1A1A2E]">
+                          {t.tempPassword}
+                        </code>
+                        <Button size="sm" variant="outline"
+                          onClick={() => { navigator.clipboard.writeText(t.tempPassword!); toast.success('Copied!'); }}>
+                          <Copy size={11} />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
