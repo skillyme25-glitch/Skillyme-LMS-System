@@ -546,7 +546,8 @@ function EditUserModal({
   const [lastName, setLastName] = useState(user.lastName);
   const [role, setRole] = useState(user.role);
   const [status, setStatus] = useState(user.status);
-  const [teamId, setTeamId] = useState(user.teamMemberships?.[0]?.teamId ?? '');
+  const originalTeamId = user.teamMemberships?.[0]?.teamId ?? '';
+  const [teamId, setTeamId] = useState(originalTeamId);
   const [functionalRole, setFunctionalRole] = useState(user.teamMemberships?.[0]?.functionalRole ?? 'BUILDER');
   const [isTeamLead, setIsTeamLead] = useState(user.teamMemberships?.[0]?.isTeamLead ?? false);
   const [loading, setLoading] = useState(false);
@@ -554,10 +555,12 @@ function EditUserModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const removeFromTeam = !!originalTeamId && !teamId;
     try {
       await adminUsersApi.update(user.id, {
         firstName, lastName, role, status,
-        ...(teamId && { teamId, functionalRole, isTeamLead }),
+        ...(removeFromTeam && { removeFromTeam: true }),
+        ...(!removeFromTeam && teamId && { teamId, functionalRole, isTeamLead }),
       });
       toast.success('User updated');
       onSuccess();

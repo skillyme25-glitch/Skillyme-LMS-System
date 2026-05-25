@@ -5,6 +5,39 @@ import { Toaster } from 'react-hot-toast';
 
 import Layout from '@/components/layout/Layout';
 
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-[#F8F7FF]">
+          <div className="text-center px-6">
+            <div className="w-14 h-14 bg-[#EEF2FF] rounded-xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <h2 className="text-xl font-semibold text-[#111827] mb-2">Something went wrong</h2>
+            <p className="text-[#6B7280] mb-5 text-sm">A page failed to load. This usually fixes itself on refresh.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-5 py-2 bg-[#3730A3] text-white rounded-lg text-sm font-medium hover:bg-[#312E81] transition-colors"
+            >
+              Refresh page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const Login            = lazy(() => import('@/pages/Login'));
 const AcceptInvite     = lazy(() => import('@/pages/AcceptInvite'));
 const ApplyPage        = lazy(() => import('@/pages/Apply'));
@@ -41,6 +74,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <ErrorBoundary>
         <Suspense fallback={<PageSpinner />}>
           <Routes>
             {/* Public */}
@@ -72,6 +106,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
       </BrowserRouter>
 
       <Toaster

@@ -17,7 +17,7 @@ function generateInviteToken(): string {
 }
 
 function inviteExpiry(): Date {
-  return new Date(Date.now() + 72 * 60 * 60 * 1000);
+  return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 }
 
 // GET /api/admin/users
@@ -205,9 +205,9 @@ router.patch(
   validate,
   async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
-    const { firstName, lastName, role, status, teamId, functionalRole, isTeamLead } = req.body as {
+    const { firstName, lastName, role, status, teamId, functionalRole, isTeamLead, removeFromTeam } = req.body as {
       firstName?: string; lastName?: string; role?: string; status?: string;
-      teamId?: string; functionalRole?: string; isTeamLead?: boolean;
+      teamId?: string; functionalRole?: string; isTeamLead?: boolean; removeFromTeam?: boolean;
     };
 
     const user = await prisma.user.findUnique({ where: { id } });
@@ -226,7 +226,9 @@ router.patch(
       },
     });
 
-    if (teamId && functionalRole) {
+    if (removeFromTeam) {
+      await prisma.teamMember.deleteMany({ where: { userId: id } });
+    } else if (teamId && functionalRole) {
       const existing = await prisma.teamMember.findFirst({ where: { userId: id } });
       if (existing) {
         await prisma.teamMember.update({

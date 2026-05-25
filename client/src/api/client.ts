@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -27,9 +28,11 @@ api.interceptors.response.use(
         } catch {
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
+          toast.error('Session expired, please log in again');
           window.location.href = '/login';
         }
       } else {
+        toast.error('Session expired, please log in again');
         window.location.href = '/login';
       }
     }
