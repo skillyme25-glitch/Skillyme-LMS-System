@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { authApi } from '@/api/endpoints';
 import { authStore } from '@/store/authStore';
+import type { FunctionalRole } from '@/types';
 import Navbar from './Navbar';
 
 export default function Layout() {
@@ -25,7 +26,7 @@ export default function Layout() {
     const teams = m.teamMemberships?.map((mb) => ({
       teamId: mb.teamId,
       teamName: mb.team?.name ?? '',
-      functionalRole: mb.functionalRole as string,
+      functionalRole: mb.functionalRole as FunctionalRole,
       isTeamLead: mb.isTeamLead,
     })) ?? [];
     const stored = authStore.getUser();
