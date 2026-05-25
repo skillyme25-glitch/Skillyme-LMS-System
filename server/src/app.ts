@@ -31,9 +31,9 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
+// Explicit preflight handler MUST come before other middleware
 app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
-
 
 // ─── Body parsing ─────────────────────────────────────────────────────────────
 app.use(express.json());
