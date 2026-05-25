@@ -187,6 +187,28 @@ router.post('/refresh', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// GET /api/auth/me
+router.get('/me', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.user!.userId },
+    include: { teamMemberships: { include: { team: true } } },
+  });
+  if (!user) {
+    res.status(404).json({ error: { message: 'User not found', code: 'NOT_FOUND' } });
+    return;
+  }
+  const { passwordHash, refreshToken, invitationToken, ...safe } = user;
+  res.json({
+    ...safe,
+    teams: user.teamMemberships.map((m) => ({
+      teamId: m.teamId,
+      teamName: m.team.name,
+      functionalRole: m.functionalRole,
+      isTeamLead: m.isTeamLead,
+    })),
+  });
+});
+
 // POST /api/auth/logout
 router.post('/logout', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   if (req.user) {

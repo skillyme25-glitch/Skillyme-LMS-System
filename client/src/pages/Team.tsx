@@ -1,6 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminTeamsApi, milestonesApi, postsApi } from '@/api/endpoints';
+import { adminTeamsApi, milestonesApi, postsApi, authApi } from '@/api/endpoints';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardHeader, CardBody } from '@/components/ui/card';
 import { Badge, MilestoneStatusBadge } from '@/components/ui/badge';
@@ -59,21 +59,32 @@ export default function TeamPage() {
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('overview');
 
-  const { data: teamsData } = useQuery({
-    queryKey: ['admin-teams'],
-    queryFn: () => adminTeamsApi.list(),
-    enabled: user?.role === 'SUPER_ADMIN' || user?.role === 'FACILITATOR',
-  });
-
-  // Determine which teamId to display
-  const allTeams = teamsData?.data ?? [];
   const isMember = user?.role === 'MEMBER';
   const isMentor = user?.role === 'MENTOR';
   const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'FACILITATOR';
 
+  // Always fetch fresh user data so team assignments made after login are visible
+  const { data: meData } = useQuery({
+    queryKey: ['auth-me'],
+    queryFn: () => authApi.me(),
+    enabled: isMember || isMentor,
+    staleTime: 30_000,
+  });
+
+  const freshTeams = (meData?.data as { teams?: Array<{ teamId: string; teamName: string; functionalRole: string; isTeamLead: boolean }> } | undefined)?.teams ?? user?.teams;
+
+  const { data: teamsData } = useQuery({
+    queryKey: ['admin-teams'],
+    queryFn: () => adminTeamsApi.list(),
+    enabled: isAdmin,
+  });
+
+  // Determine which teamId to display
+  const allTeams = teamsData?.data ?? [];
+
   const teamId: string = (() => {
-    if (isMember) return user?.teams?.[0]?.teamId ?? '';
-    if (isMentor) return selectedTeamId ?? (user?.teams?.[0]?.teamId ?? '');
+    if (isMember) return freshTeams?.[0]?.teamId ?? '';
+    if (isMentor) return selectedTeamId ?? (freshTeams?.[0]?.teamId ?? '');
     return selectedTeamId ?? (allTeams[0]?.id ?? '');
   })();
 
