@@ -6,7 +6,7 @@
 
   },
   "deploy": {
-    "startCommand": "npx prisma db push --schema=./prisma/schema.prisma --accept-data-loss --skip-generate && cd server && node dist/index.js",
+    "startCommand": "npx prisma db push --schema=./prisma/schema.prisma --accept-data-loss --skip-generate && npx ts-node --project tsconfig.base.json prisma/seed.ts && cd server && node dist/index.js",
 
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
