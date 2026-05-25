@@ -273,7 +273,11 @@ export default function ParticipantsPage() {
           user={editUser}
           teamOptions={teamOptions}
           onClose={() => setEditUser(null)}
-          onSuccess={() => { qc.invalidateQueries({ queryKey: ['admin-users'] }); setEditUser(null); }}
+          onSuccess={() => {
+            qc.invalidateQueries({ queryKey: ['admin-users'] });
+            qc.invalidateQueries({ queryKey: ['admin-teams'] });
+            setEditUser(null);
+          }}
         />
       )}
 
@@ -283,7 +287,11 @@ export default function ParticipantsPage() {
           user={assignUser}
           teams={teams}
           onClose={() => setAssignUser(null)}
-          onSuccess={() => { qc.invalidateQueries({ queryKey: ['admin-users'] }); setAssignUser(null); }}
+          onSuccess={() => {
+            qc.invalidateQueries({ queryKey: ['admin-users'] });
+            qc.invalidateQueries({ queryKey: ['admin-teams'] });
+            setAssignUser(null);
+          }}
         />
       )}
     </div>

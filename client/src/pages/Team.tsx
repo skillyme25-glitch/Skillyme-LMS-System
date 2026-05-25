@@ -71,7 +71,12 @@ export default function TeamPage() {
     staleTime: 30_000,
   });
 
-  const freshTeams = (meData?.data as { teams?: Array<{ teamId: string; teamName: string; functionalRole: string; isTeamLead: boolean }> } | undefined)?.teams ?? user?.teams;
+  const freshTeams = meData?.data?.teamMemberships?.map((m) => ({
+    teamId: m.teamId,
+    teamName: m.team?.name ?? '',
+    functionalRole: m.functionalRole as string,
+    isTeamLead: m.isTeamLead,
+  })) ?? user?.teams;
 
   const { data: teamsData } = useQuery({
     queryKey: ['admin-teams'],
