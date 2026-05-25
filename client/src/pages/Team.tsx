@@ -63,17 +63,14 @@ export default function TeamPage() {
   const isMentor = user?.role === 'MENTOR';
   const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'FACILITATOR';
 
-  // Share the same ['auth-me'] query key as Layout so no extra request is made.
-  // Layout updates the auth store when this resolves, so user.teams is always fresh.
-  const { isLoading: meLoading } = useQuery({
+  // Fetch fresh membership data directly — shared cache with Layout, no extra request.
+  // Read teamId from the API response directly to avoid the auth-store timing gap.
+  const { data: meData, isLoading: meLoading } = useQuery({
     queryKey: ['auth-me'],
     queryFn: () => authApi.me(),
     enabled: isMember || isMentor,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0, // always treat as stale so a page refresh gets the latest assignment
   });
-
-  // While the first auth-me fetch is in flight, don't decide there's no team yet
-  const resolvingTeam = (isMember || isMentor) && meLoading && !user?.teams?.length;
 
   const { data: teamsData } = useQuery({
     queryKey: ['admin-teams'],
@@ -84,11 +81,19 @@ export default function TeamPage() {
   // Determine which teamId to display
   const allTeams = teamsData?.data ?? [];
 
+  // For members/mentors: read teamId straight from the /me response (most reliable),
+  // fall back to auth store only while meData is still loading.
+  const memberTeamId =
+    meData?.data?.teamMemberships?.[0]?.teamId ?? user?.teams?.[0]?.teamId ?? '';
+
   const teamId: string = (() => {
-    if (isMember) return user?.teams?.[0]?.teamId ?? '';
-    if (isMentor) return selectedTeamId ?? (user?.teams?.[0]?.teamId ?? '');
+    if (isMember) return memberTeamId;
+    if (isMentor) return selectedTeamId ?? memberTeamId;
     return selectedTeamId ?? (allTeams[0]?.id ?? '');
   })();
+
+  // Show spinner while the first auth-me fetch is in flight (don't prematurely show "no team")
+  const resolvingTeam = (isMember || isMentor) && meLoading;
 
   const { data: teamData } = useQuery({
     queryKey: ['team', teamId],
