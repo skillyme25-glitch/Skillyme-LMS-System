@@ -12,6 +12,18 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Guard so multiple concurrent 401s only trigger one redirect
+let isRedirecting = false;
+
+function forceLogout() {
+  if (isRedirecting) return;
+  isRedirecting = true;
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  toast.error('Session expired, please log in again');
+  window.location.href = '/login';
+}
+
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -26,14 +38,11 @@ api.interceptors.response.use(
           original.headers.Authorization = `Bearer ${data.accessToken}`;
           return api(original);
         } catch {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          toast.error('Session expired, please log in again');
-          window.location.href = '/login';
+          forceLogout();
         }
-      } else {
-        toast.error('Session expired, please log in again');
-        window.location.href = '/login';
+      } else if (window.location.pathname !== '/login') {
+        // Only redirect if not already on the login page to prevent loops
+        forceLogout();
       }
     }
     return Promise.reject(error);
