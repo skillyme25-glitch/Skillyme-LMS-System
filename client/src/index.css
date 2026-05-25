@@ -6,31 +6,31 @@
 
 @layer base {
   :root {
-    --background: 245 100% 99%;
-    --foreground: 225 60% 8%;
+    --background: 210 17% 98%;
+    --foreground: 240 30% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 225 60% 8%;
+    --card-foreground: 240 30% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 225 60% 8%;
-    --primary: 243 56% 41%;
+    --popover-foreground: 240 30% 14%;
+    --primary: 170 72% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 245 100% 97%;
-    --secondary-foreground: 225 60% 8%;
+    --secondary: 170 30% 97%;
+    --secondary-foreground: 240 30% 14%;
     --muted: 220 15% 94%;
-    --muted-foreground: 220 10% 46%;
-    --accent: 38 92% 50%;
-    --accent-foreground: 225 60% 8%;
-    --destructive: 0 72% 51%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 7 85% 58%;
+    --accent-foreground: 240 30% 14%;
+    --destructive: 7 85% 58%;
     --destructive-foreground: 0 0% 100%;
-    --border: 243 30% 88%;
-    --input: 243 30% 88%;
-    --ring: 243 56% 41%;
+    --border: 170 20% 88%;
+    --input: 170 20% 88%;
+    --ring: 170 72% 42%;
     --radius: 6px;
   }
 
   body {
     font-family: 'Inter', system-ui, sans-serif;
-    @apply bg-[#F8F7FF] text-[#111827] antialiased;
+    @apply bg-[#F8F9FA] text-[#1A1A2E] antialiased;
     min-height: 100vh;
     overflow-x: hidden;
     font-feature-settings: 'cv11', 'ss01';
@@ -65,9 +65,9 @@
   inset: 0;
   background: linear-gradient(
     160deg,
-    rgba(55,48,163,0.90) 0%,
-    rgba(46,39,163,0.82) 45%,
-    rgba(30,27,75,0.92) 100%
+    rgba(13,31,45,0.90) 0%,
+    rgba(15,154,126,0.82) 45%,
+    rgba(13,31,45,0.92) 100%
   );
   z-index: 1;
   pointer-events: none;
@@ -77,25 +77,25 @@
 /* Fallback if no photo */
 .city-bg-fallback::before {
   background-image: none !important;
-  background: linear-gradient(160deg, #2E27A3 0%, #3730A3 50%, #1e1b4b 100%);
+  background: linear-gradient(160deg, #0D1F2D 0%, #1DB89A 50%, #0D1F2D 100%);
 }
 
 /* ─── Navbar ───────────────────────────────────────────── */
 .navbar {
   background: #ffffff;
-  border-bottom: 1px solid rgba(55,48,163,0.10);
-  box-shadow: 0 1px 3px rgba(55,48,163,0.06);
+  border-bottom: 1px solid rgba(29,184,154,0.10);
+  box-shadow: 0 1px 3px rgba(29,184,154,0.06);
 }
 
 /* ─── Cards ────────────────────────────────────────────── */
 .card {
   background: #ffffff;
-  border: 1px solid rgba(55,48,163,0.08);
+  border: 1px solid rgba(29,184,154,0.08);
   border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(55,48,163,0.07);
+  box-shadow: 0 1px 4px rgba(29,184,154,0.07);
 }
 .card-hover:hover {
-  box-shadow: 0 8px 24px rgba(55,48,163,0.12), 0 0 0 1px rgba(55,48,163,0.10);
+  box-shadow: 0 8px 24px rgba(29,184,154,0.12), 0 0 0 1px rgba(29,184,154,0.10);
   transform: translateY(-2px);
 }
 
@@ -105,21 +105,21 @@
   font-weight: 600;
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: #F59E0B;
+  color: #F04E37;
 }
 .label-muted {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: #6B7280;
+  color: #64748B;
 }
 
 /* ─── Gold accent bar ──────────────────────────────────── */
 .accent-bar {
   width: 40px;
   height: 3px;
-  background: #F59E0B;
+  background: #F04E37;
   border-radius: 2px;
 }
 
@@ -129,17 +129,17 @@
 }
 .stat-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(55,48,163,0.12);
+  box-shadow: 0 8px 24px rgba(29,184,154,0.12);
 }
 
 /* ─── Section backgrounds ──────────────────────────────── */
 .section-indigo {
-  background: #3730A3;
+  background: #1DB89A;
   color: #ffffff;
 }
 .section-pale {
-  background: #EEF2FF;
-  color: #111827;
+  background: #E8FAF6;
+  color: #1A1A2E;
 }
 
 /* ─── Mobile drawer ────────────────────────────────────── */
@@ -148,8 +148,8 @@
   top: 0; left: 0; bottom: 0;
   width: 280px;
   background: #ffffff;
-  border-right: 1px solid rgba(55,48,163,0.12);
-  box-shadow: 4px 0 32px rgba(55,48,163,0.12);
+  border-right: 1px solid rgba(29,184,154,0.12);
+  box-shadow: 4px 0 32px rgba(29,184,154,0.12);
   z-index: 60;
   transform: translateX(-100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -157,7 +157,7 @@
 .mobile-drawer.open { transform: translateX(0); }
 .drawer-overlay {
   position: fixed; inset: 0;
-  background: rgba(55,48,163,0.30);
+  background: rgba(13,31,45,0.30);
   backdrop-filter: blur(2px);
   z-index: 55;
   opacity: 0; pointer-events: none;
@@ -171,29 +171,29 @@
 /* ─── Scrollbar ────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: #F3F4F6; }
-::-webkit-scrollbar-thumb { background: rgba(55,48,163,0.25); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: #3730A3; }
+::-webkit-scrollbar-thumb { background: rgba(29,184,154,0.25); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #1DB89A; }
 
 /* ─── Focus ────────────────────────────────────────────── */
 input:focus, textarea:focus, select:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(55,48,163,0.15);
+  box-shadow: 0 0 0 3px rgba(29,184,154,0.15);
 }
 
 /* ─── Invite link box ──────────────────────────────────── */
 .invite-link-box {
-  background: #EEF2FF;
-  border-left: 3px solid #3730A3;
+  background: #E8FAF6;
+  border-left: 3px solid #1DB89A;
   padding: 12px 16px;
   word-break: break-all;
   font-size: 0.8rem;
-  color: #111827;
+  color: #1A1A2E;
   font-family: 'JetBrains Mono', monospace;
   border-radius: 0 4px 4px 0;
 }
 
 /* ─── Admin page ───────────────────────────────────────── */
-.admin-page { background: #F8F7FF; min-height: 100vh; }
+.admin-page { background: #F8F9FA; min-height: 100vh; }
 
 /* ─── Reveal scroll ────────────────────────────────────── */
 .reveal {
@@ -208,7 +208,7 @@ input:focus, textarea:focus, select:focus {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #6B7280;
+  color: #64748B;
   font-size: 12px;
 }
 .gold-divider::before,
@@ -216,5 +216,5 @@ input:focus, textarea:focus, select:focus {
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(55,48,163,0.12);
+  background: rgba(29,184,154,0.12);
 }
