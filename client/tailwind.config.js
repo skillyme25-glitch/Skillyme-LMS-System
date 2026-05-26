@@ -5,63 +5,104 @@ export default {
   theme: {
     extend: {
       colors: {
-        indigo:  { DEFAULT: '#1DB89A', dark: '#0F9A7E', light: '#3DCFB1', subtle: '#E8FAF6' },
-        gold:    { DEFAULT: '#F04E37', dark: '#D97706', light: '#F5836E', subtle: '#FFECE9' },
-        success: { DEFAULT: '#16A34A', subtle: '#F0FDF4' },
-        warning: { DEFAULT: '#D97706', subtle: '#FFFBEB' },
-        danger:  { DEFAULT: '#F04E37', subtle: '#FFECE9' },
-        ink:     { DEFAULT: '#1A1A2E', mid: '#374151', muted: '#64748B', faint: '#9CA3AF' },
-        surface: { DEFAULT: '#F8F9FA', card: '#FFFFFF', alt: '#F3F4F6' },
-        teal:    { tint: '#E8FAF6' },
-        border:  'hsl(var(--border))',
-        input:   'hsl(var(--input))',
-        ring:    'hsl(var(--ring))',
-        background: '#F8F9FA',
-        foreground: '#1A1A2E',
+        /* ── Brand accents ─────────────────────────── */
+        teal:   { DEFAULT: '#00E0B8', dark: '#00B896', bright: '#3DFFD2', glow: 'rgba(0,224,184,0.15)',  tint: 'rgba(0,224,184,0.08)' },
+        purple: { DEFAULT: '#7B3CFF', dark: '#6228E0', bright: '#9B5FFF', glow: 'rgba(123,60,255,0.15)', tint: 'rgba(123,60,255,0.08)' },
+
+        /* ── Legacy semantic aliases (still referenced by components) ── */
+        indigo:  { DEFAULT: '#00E0B8', dark: '#00B896', light: '#3DFFD2', subtle: 'rgba(0,224,184,0.08)' },
+        gold:    { DEFAULT: '#FFB800', dark: '#E6A600', light: '#FFD166', subtle: 'rgba(255,184,0,0.15)' },
+
+        /* ── Functional ──────────────────────────── */
+        success: { DEFAULT: '#00E0B8', subtle: 'rgba(0,224,184,0.15)' },
+        warning: { DEFAULT: '#FFB800', subtle: 'rgba(255,184,0,0.15)' },
+        danger:  { DEFAULT: '#FF4D4D', subtle: 'rgba(255,77,77,0.15)' },
+
+        /* ── Ink / text scale ───────────────────── */
+        ink: {
+          DEFAULT: '#FFFFFF',
+          mid:     '#D9E2F2',
+          muted:   '#D9E2F2',
+          faint:   'rgba(217,226,242,0.40)',
+        },
+
+        /* ── Surfaces ───────────────────────────── */
+        surface: {
+          DEFAULT: '#070B1A',
+          card:    '#0F1328',
+          alt:     '#161B35',
+        },
+
+        /* ── Tailwind / shadcn primitives ───────── */
+        border:     'rgba(255, 255, 255, 0.06)',
+        input:      'rgba(255, 255, 255, 0.08)',
+        ring:       '#00E0B8',
+        background: '#070B1A',
+        foreground: '#FFFFFF',
+
         primary: {
-          DEFAULT: '#1DB89A',
-          foreground: '#ffffff',
-          dark: '#0F9A7E',
+          DEFAULT:    '#00E0B8',
+          foreground: '#FFFFFF',
+          dark:       '#00B896',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT:    '#7B3CFF',
+          foreground: '#FFFFFF',
+          dark:       '#6228E0',
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT:    '#161B35',
+          foreground: '#D9E2F2',
+        },
+        accent: {
+          DEFAULT:    '#00E0B8',
+          foreground: '#FFFFFF',
         },
         destructive: {
-          DEFAULT: '#F04E37',
-          foreground: '#ffffff',
+          DEFAULT:    '#FF4D4D',
+          foreground: '#FFFFFF',
+        },
+        card: {
+          DEFAULT:    '#0F1328',
+          foreground: '#FFFFFF',
+        },
+        popover: {
+          DEFAULT:    '#0F1328',
+          foreground: '#FFFFFF',
         },
       },
+
       fontFamily: {
         sans:    ['Inter', 'system-ui', 'sans-serif'],
         heading: ['"DM Serif Display"', 'Georgia', 'serif'],
         mono:    ['"JetBrains Mono"', 'monospace'],
       },
+
       borderRadius: {
-        none: '0px',
-        sm:   '4px',
+        none:  '0px',
+        sm:    '4px',
         DEFAULT: '6px',
-        md:   '6px',
-        lg:   '8px',
-        xl:   '12px',
+        md:    '6px',
+        lg:    '8px',
+        xl:    '12px',
         '2xl': '16px',
         '3xl': '24px',
-        full: '9999px',
+        full:  '9999px',
       },
+
       boxShadow: {
-        xs:   '0 1px 2px rgba(29,184,154,0.04)',
-        sm:   '0 1px 3px rgba(29,184,154,0.08), 0 1px 2px rgba(29,184,154,0.04)',
-        md:   '0 4px 12px rgba(29,184,154,0.10), 0 2px 4px rgba(29,184,154,0.06)',
-        lg:   '0 10px 32px rgba(29,184,154,0.12), 0 4px 8px rgba(29,184,154,0.06)',
-        card: '0 1px 4px rgba(29,184,154,0.08), 0 0 0 1px rgba(29,184,154,0.06)',
-        'card-hover': '0 8px 24px rgba(29,184,154,0.14), 0 0 0 1px rgba(29,184,154,0.10)',
-        gold: '0 0 24px rgba(240,78,55,0.30)',
-        indigo: '0 0 24px rgba(29,184,154,0.25)',
+        xs:           '0 1px 2px rgba(0,0,0,0.40)',
+        sm:           '0 1px 3px rgba(0,0,0,0.50), 0 1px 2px rgba(0,0,0,0.40)',
+        md:           '0 4px 12px rgba(0,0,0,0.50), 0 2px 4px rgba(0,0,0,0.40)',
+        lg:           '0 10px 32px rgba(0,0,0,0.60), 0 4px 8px rgba(0,0,0,0.40)',
+        card:         '0 1px 4px rgba(0,0,0,0.40), 0 0 0 1px rgba(255,255,255,0.06)',
+        'card-hover': '0 8px 24px rgba(0,224,184,0.15), 0 0 0 1px rgba(0,224,184,0.20)',
+        'glow-teal':  '0 0 20px rgba(0,224,184,0.25)',
+        'glow-purple':'0 0 20px rgba(123,60,255,0.25)',
+        gold:         '0 0 24px rgba(0,224,184,0.30)',
+        indigo:       '0 0 24px rgba(0,224,184,0.25)',
       },
+
       keyframes: {
         'fade-in': {
           from: { opacity: '0', transform: 'translateY(12px)' },
@@ -84,8 +125,8 @@ export default {
           to:   { transform: 'scale(1)' },
         },
         'pulse-gold': {
-          '0%,100%': { boxShadow: '0 0 0 0 rgba(240,78,55,0.4)' },
-          '50%': { boxShadow: '0 0 0 8px rgba(240,78,55,0)' },
+          '0%,100%': { boxShadow: '0 0 0 0 rgba(0,224,184,0.4)' },
+          '50%':     { boxShadow: '0 0 0 8px rgba(0,224,184,0)' },
         },
         'accordion-down': {
           from: { height: '0' },
@@ -96,13 +137,14 @@ export default {
           to:   { height: '0' },
         },
       },
+
       animation: {
-        'fade-in':    'fade-in 0.4s ease-out both',
-        'slide-up':   'slide-up 0.45s ease-out both',
-        'slide-down': 'slide-down 0.25s ease-out both',
-        'scale-in':   'scale-in 0.2s ease-out both',
-        'ken-burns':  'ken-burns 14s ease-out both',
-        'pulse-gold': 'pulse-gold 2s ease-in-out infinite',
+        'fade-in':        'fade-in 0.4s ease-out both',
+        'slide-up':       'slide-up 0.45s ease-out both',
+        'slide-down':     'slide-down 0.25s ease-out both',
+        'scale-in':       'scale-in 0.2s ease-out both',
+        'ken-burns':      'ken-burns 14s ease-out both',
+        'pulse-gold':     'pulse-gold 2s ease-in-out infinite',
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up':   'accordion-up 0.2s ease-out',
       },
