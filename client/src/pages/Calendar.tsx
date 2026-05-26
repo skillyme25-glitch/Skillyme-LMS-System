@@ -60,7 +60,7 @@ export default function CalendarPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#111827]">Calendar</h1>
+        <h1 className="text-2xl font-bold text-white">Calendar</h1>
         {canManage && (
           <Button onClick={() => setCreateModal(true)} size="sm">
             <Plus size={14} /> Create Event
@@ -68,7 +68,7 @@ export default function CalendarPage() {
         )}
       </div>
 
-      <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm p-4">
+      <div className="bg-[#0F1328] rounded-xl border border-white/[0.06] shadow-md p-4">
         <FullCalendar
           ref={calRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -86,7 +86,7 @@ export default function CalendarPage() {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-4 text-xs text-[#4B5563]">
+      <div className="flex flex-wrap gap-4 text-xs text-[#D9E2F2]">
         {Object.entries(EVENT_COLORS).map(([type, color]) => (
           <div key={type} className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: color }} />

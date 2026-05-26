@@ -205,6 +205,84 @@ input:focus, textarea:focus, select:focus {
 }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
+/* ─── FullCalendar dark-theme overrides ────────────────── */
+.fc {
+  --fc-border-color: rgba(255,255,255,0.06);
+  --fc-page-bg-color: #0F1328;
+  --fc-neutral-bg-color: #161B35;
+  --fc-today-bg-color: rgba(0,224,184,0.08);
+  --fc-non-business-color: rgba(255,255,255,0.02);
+  --fc-event-border-color: transparent;
+  color: #D9E2F2;
+}
+.fc .fc-daygrid-day-number {
+  color: #D9E2F2;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+.fc .fc-day-today .fc-daygrid-day-number {
+  color: #00E0B8;
+  font-weight: 700;
+}
+.fc .fc-day-other .fc-daygrid-day-number {
+  color: rgba(217,226,242,0.30);
+}
+.fc .fc-col-header-cell-cushion {
+  color: #D9E2F2;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.fc .fc-toolbar-title {
+  color: #FFFFFF;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.fc .fc-button {
+  background: #161B35;
+  border: 1px solid rgba(255,255,255,0.10);
+  color: #D9E2F2;
+  font-size: 0.78rem;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+.fc .fc-button:hover,
+.fc .fc-button-primary:not(.fc-button-active):not(:disabled):hover {
+  background: rgba(0,224,184,0.12);
+  border-color: rgba(0,224,184,0.30);
+  color: #00E0B8;
+}
+.fc .fc-button-primary.fc-button-active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background: rgba(0,224,184,0.15);
+  border-color: #00E0B8;
+  color: #00E0B8;
+  box-shadow: none;
+}
+.fc .fc-button:focus,
+.fc .fc-button-primary:focus {
+  box-shadow: 0 0 0 2px rgba(0,224,184,0.25);
+}
+.fc .fc-timegrid-slot-label-cushion,
+.fc .fc-timegrid-axis-cushion {
+  color: rgba(217,226,242,0.50);
+  font-size: 0.72rem;
+}
+.fc .fc-event-title,
+.fc .fc-event-time {
+  color: #FFFFFF;
+  font-size: 0.75rem;
+}
+.fc .fc-scrollgrid,
+.fc .fc-scrollgrid-section > td,
+.fc .fc-scrollgrid-sync-table td,
+.fc .fc-scrollgrid-sync-table th {
+  border-color: rgba(255,255,255,0.06);
+}
+
 /* ─── Divider ──────────────────────────────────────────── */
 .gold-divider {
   display: flex;
