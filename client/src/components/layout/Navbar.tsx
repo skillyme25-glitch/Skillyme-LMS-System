@@ -6,7 +6,8 @@ import { authStore } from '@/store/authStore';
 import { authApi, configApi } from '@/api/endpoints';
 import { initials } from '@/lib/utils';
 import NotificationBell from './NotificationBell';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { resetRedirectGuard } from '@/api/client';
 
 type NavItem = { to: string; label: string; icon: React.ReactNode };
 
@@ -55,6 +56,8 @@ export default function Navbar() {
 
   useEffect(() => { setDrawerOpen(false); }, [location.pathname]);
 
+  const queryClient = useQueryClient();
+
   const { data: config } = useQuery({
     queryKey: ['config'], queryFn: () => configApi.get(), staleTime: Infinity,
   });
@@ -62,7 +65,10 @@ export default function Navbar() {
   const programName = config?.data.programName ?? 'Skillyme Africa';
 
   const handleLogout = async () => {
+    resetRedirectGuard();
     try { await authApi.logout(); } catch { /* ignore */ }
+    queryClient.cancelQueries();
+    queryClient.clear();
     authStore.clearAuth();
     navigate('/login');
   };

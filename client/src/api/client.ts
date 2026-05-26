@@ -15,6 +15,11 @@ api.interceptors.request.use((config) => {
 // Guard so multiple concurrent 401s only trigger one redirect
 let isRedirecting = false;
 
+// Called by intentional logout so the guard resets for future sessions
+export function resetRedirectGuard(): void {
+  isRedirecting = false;
+}
+
 function forceLogout() {
   if (isRedirecting) return;
   isRedirecting = true;
