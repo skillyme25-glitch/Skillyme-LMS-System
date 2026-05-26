@@ -1,5 +1,4 @@
 import axios from 'axios';
-import toast from 'react-hot-toast';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -12,7 +11,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Guard: only one forced logout redirect fires even if many 401s arrive
+// Guard: only one forced logout fires even if many 401s arrive at once
 let isRedirecting = false;
 
 // Deduplicates concurrent refreshes: all simultaneous 401s share one call
@@ -27,8 +26,9 @@ function forceLogout() {
   isRedirecting = true;
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
-  toast.error('Session expired, please log in again');
-  window.location.href = '/login';
+  // Signal the React app — Layout catches this and shows a session-expired
+  // screen with a "Log in again" button instead of doing a hard page reload.
+  window.dispatchEvent(new CustomEvent('auth:session-expired'));
 }
 
 async function refreshAccessToken(): Promise<string> {
@@ -52,9 +52,6 @@ api.interceptors.response.use(
 
       if (hasRefreshToken) {
         try {
-          // All concurrent 401s share one refresh instead of each firing their own.
-          // Without this, refresh token rotation invalidates the first refresh and
-          // all subsequent calls fail, causing a reload loop on returning users.
           if (!refreshPromise) {
             refreshPromise = refreshAccessToken().finally(() => {
               refreshPromise = null;
