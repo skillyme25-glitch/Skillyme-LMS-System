@@ -12,10 +12,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Guard so multiple concurrent 401s only trigger one redirect
+// Guard: only one forced logout redirect fires even if many 401s arrive
 let isRedirecting = false;
 
-// Called by intentional logout so the guard resets for future sessions
+// Deduplicates concurrent refreshes: all simultaneous 401s share one call
+let refreshPromise: Promise<string> | null = null;
+
 export function resetRedirectGuard(): void {
   isRedirecting = false;
 }
@@ -29,24 +31,42 @@ function forceLogout() {
   window.location.href = '/login';
 }
 
+async function refreshAccessToken(): Promise<string> {
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (!refreshToken) throw new Error('No refresh token');
+  const { data } = await axios.post(
+    `${import.meta.env.VITE_API_URL || '/api'}/auth/refresh`,
+    { refreshToken }
+  );
+  localStorage.setItem('accessToken', data.accessToken);
+  return data.accessToken as string;
+}
+
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
+      const hasRefreshToken = !!localStorage.getItem('refreshToken');
+
+      if (hasRefreshToken) {
         try {
-          const { data } = await axios.post(`${import.meta.env.VITE_API_URL || '/api'}/auth/refresh`, { refreshToken });
-          localStorage.setItem('accessToken', data.accessToken);
-          original.headers.Authorization = `Bearer ${data.accessToken}`;
+          // All concurrent 401s share one refresh instead of each firing their own.
+          // Without this, refresh token rotation invalidates the first refresh and
+          // all subsequent calls fail, causing a reload loop on returning users.
+          if (!refreshPromise) {
+            refreshPromise = refreshAccessToken().finally(() => {
+              refreshPromise = null;
+            });
+          }
+          const newToken = await refreshPromise;
+          original.headers.Authorization = `Bearer ${newToken}`;
           return api(original);
         } catch {
           forceLogout();
         }
       } else if (window.location.pathname !== '/login') {
-        // Only redirect if not already on the login page to prevent loops
         forceLogout();
       }
     }
